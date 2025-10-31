@@ -17,3 +17,15 @@ exports.createPost = async(req, res, next)=>{
     res.status(500)
   }
 }
+
+exports.getPosts = async (req,res,next)=>{
+  try {
+    const posts = await Post.find()
+    res.status(200).json({
+      message:"Success!",
+      posts
+    })
+  } catch (error) {
+    res.status(500)
+  }
+}
