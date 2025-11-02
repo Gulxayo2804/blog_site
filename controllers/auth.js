@@ -61,7 +61,7 @@ exports.getUserStatus = async (req, res, next) => {
         if (!user) {
             const error = new Error('User not founded');
             error.statusCode = 404;
-            throw (error);
+            throw error;
         }
         res.status(200).json({ status: user.status });
     } catch (error) {
@@ -79,7 +79,7 @@ exports.updateUserStatus = async (req, res, next) => {
         if (!user) {
             const error = new Error('USer not found');
             error.statusCode = 404;
-            throw (error);
+            throw error;
         }
         user.status = newstatus;
         await user.save();

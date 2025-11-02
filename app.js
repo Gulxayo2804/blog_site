@@ -6,6 +6,8 @@ app.use(express.json());
 const MONGODB_URI =
     'mongodb+srv://gulkhayo:gulkhayo@cluster0.rkdaucr.mongodb.net/blog?retryWrites=true&w=majority&appName=Cluster0';
 
+app.use('/auth', require('./routes/auth'));
+// app.use('/feed', require('./routes/feed'));
 
 app.use((error, req, res, next) => {
     console.log(error);
