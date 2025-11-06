@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 const Post = require('../models/Post');
 const User = require('../models/User');
 
@@ -73,5 +76,47 @@ exports.getPost = async (req, res, next) => {
 
 exports.updatePost = async (req, res, next) => {
   const postId = req.params.postId;
+  let imageUrl = req.body.image;
 
+  if (req.file) {
+    imageUrl = req.file.path;
+  }
+  if (!imageUrl) {
+    const error = new Error('No file picked');
+    error.statusCode = 422;
+    throw error;
+  }
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      const error = new Error('Post not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (post.creator.string() !== req.userId) {
+      const error = new Error('Not authorized');
+      error.statusCode = 403;
+      throw (error);
+    }
+    if (imageUrl !== post.imageUrl) {
+      clearImage(post.imageUrl);
+    }
+
+    post.title = req.body.title;
+    post.content = req.body.content;
+    post.imageUrl = imageUrl;
+    const result = await post.save();
+    res.status(200).json({ message: "Post updated", post: result });
+
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+}
+
+const clearImage = filePath => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, err => console.log(err));
 }
