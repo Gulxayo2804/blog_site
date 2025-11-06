@@ -22,11 +22,17 @@ exports.createPost = async (req, res, next) => {
 }
 
 exports.getPosts = async (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = 2;
   try {
+    const TotalPosts = await Post.findDocumentCount();
     const posts = await Post.find()
+      .skip((currentPage-1)*perPage)
+      .limit(perPage);
     res.status(200).json({
       message: "Success!",
-      posts
+      posts,
+      totalItems : TotalPosts
     })
   } catch (error) {
     if (!error.statusCode) {
