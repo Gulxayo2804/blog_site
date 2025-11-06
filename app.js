@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', require('./routes/auth'));
-// app.use('/feed', require('./routes/feed'));
+app.use('/feed', require('./routes/feed'));
 
 app.use((error, req, res, next) => {
     console.log(error);
