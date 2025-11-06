@@ -1,16 +1,27 @@
 const Post = require('../models/Post');
+const User = require('../models/User');
 
 exports.createPost = async (req, res, next) => {
+  if (!req.file) {
+    const error = new Error('No image provided');
+    error.statusCode = 422;
+    throw error;
+  }
   try {
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
-      imageUrl: 'kk',
+      imageUrl: req.file.path,
+      creator: req.userId
     })
-    await post.save()
+    await post.save();
+    const user = await User.findById(req.userId);
+    user.posts.push(post);
+    await user.save();
     res.status(200).json({
       message: 'Post created',
-      data: post
+      post,
+      creator: { _id: user._id, name: user.name }
     })
   }
   catch (err) {
@@ -27,12 +38,12 @@ exports.getPosts = async (req, res, next) => {
   try {
     const TotalPosts = await Post.findDocumentCount();
     const posts = await Post.find()
-      .skip((currentPage-1)*perPage)
+      .skip((currentPage - 1) * perPage)
       .limit(perPage);
     res.status(200).json({
       message: "Success!",
       posts,
-      totalItems : TotalPosts
+      totalItems: TotalPosts
     })
   } catch (error) {
     if (!error.statusCode) {
