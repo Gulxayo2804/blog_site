@@ -4,9 +4,9 @@ const { getPost, getPosts, createPost, updatePost, deletePost } = require('../co
 const isAuth = require('../middleware/is-auth');
 
 router.post('/post', isAuth, createPost);
-router.get('/post/postId', isAuth, getPost);
+router.get('/post/:postId', isAuth, getPost);
 router.get('/posts', isAuth, getPosts);
-router.put('/post/postId', isAuth, updatePost)
-router.delete('/post/postId', isAuth, deletePost);
+router.put('/post/:postId', isAuth, updatePost)
+router.delete('/post/:postId', isAuth, deletePost);
 
 module.exports = router;

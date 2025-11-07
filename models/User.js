@@ -18,7 +18,7 @@ const UserModel = mongoose.Schema({
         default:'I am new!'
     },
     posts: [{
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
     }]
 

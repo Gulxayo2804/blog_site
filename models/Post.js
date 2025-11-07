@@ -14,7 +14,7 @@ const postModel = mongoose.Schema({
         required: true
     },
     creator: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         // required: true,
         ref: 'User'
     }

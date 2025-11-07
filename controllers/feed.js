@@ -39,8 +39,9 @@ exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 2;
   try {
-    const TotalPosts = await Post.findDocumentCount();
+    const TotalPosts = await Post.countDocuments({});
     const posts = await Post.find()
+      .populate('creator', 'name email')
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
     res.status(200).json({
@@ -58,13 +59,14 @@ exports.getPosts = async (req, res, next) => {
 
 exports.getPost = async (req, res, next) => {
   const postId = req.params.postId;
-  const post = await Post.findById(postId);
+  const post = await Post.findById(postId).populate('creator', 'name email');
   try {
     if (!post) {
       const error = new Error('could not find a post');
       error.statusCode = 404;
       throw error;
     }
+    console.log(post);
     res.status(200).json({ message: 'Suceess!', post });
   } catch (error) {
     if (!error.statusCode) {
@@ -93,7 +95,7 @@ exports.updatePost = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (post.creator.string() !== req.userId) {
+    if (post.creator.toString() !== req.userId) {
       const error = new Error('Not authorized');
       error.statusCode = 403;
       throw (error);
@@ -133,7 +135,7 @@ exports.deletePost = async (req, res, next) => {
     }
     // Check logged in user
     clearImage(post.imageUrl);
-    await Post.findByIdAndRemove(postId);
+    await Post.findByIdAndDelete(postId);
 
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
