@@ -6,7 +6,7 @@ const app = express();
 const multer = require('multer');
 
 const MONGODB_URI =
-    'mongodb+srv://gulkhayo:gulkhayo@cluster0.rkdaucr.mongodb.net/blog?retryWrites=true&w=majority&appName=Cluster0';
+  'mongodb+srv://gulkhayo:gulkhayo@cluster0.rkdaucr.mongodb.net/blog?retryWrites=true&w=majority&appName=Cluster0';
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -38,32 +38,34 @@ app.use(
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-    );
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
 });
 
 app.use('/auth', require('./routes/auth'));
 app.use('/feed', require('./routes/feed'));
 
 app.use((error, req, res, next) => {
-    console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    const data = error.data;
-    res.status(status).json({ message, data })
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message, data })
 })
 
 moongose
-    .connect(MONGODB_URI)
-    .then(() => {
-        app.listen(8080, () => {
-            console.log('Working..')
-        })
-    })
-    .catch(err => { console.log('error connection with db') })
+  .connect(MONGODB_URI)
+  .then(result => {
+    const server = app.listen(8080);
+    const io = require('./socket').init(server);
 
+    io.on('connection', socket => {
+      console.log('Client connected');
+    });
+  })
+  .catch(err => console.log(err));
